@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
-import sys
-import re   #regex
+import json, urllib.request, sys, re
 
 # Check if string is an IMDB-id
 def is_imdb(string):
@@ -17,6 +15,23 @@ def valid_type(string):
 def valid_year(string):
     re_year = re.compile("^[1-2]\d{3}$")
     return True if re_year.search(string) else False
+
+class Movie:
+    def __init__(self, json_data):
+        self.title = json_data["Title"]
+        self.year = json_data["Year"]
+        self.imdb_id = json_data["imdbID"]
+        self.imdb_rating = json_data["Ratings"][0]["Value"]
+        self.genre = json_data["Genre"]
+        self.actors = json_data["Actors"]
+        self.runtime = json_data["Runtime"]
+    def to_string(self):
+        print(self.title + " (" + self.year +")")
+        print(self.imdb_id)
+        print(self.genre)
+        print("Runtime: " + self.runtime)
+        print("IMDb rating: " + self.imdb_rating)
+        print("Actors: " + self.actors)
 
 site = "http://www.omdbapi.com"
 
@@ -41,5 +56,12 @@ else:
         search_string_url += "&y=" + search_year
     if valid_type(search_type):
         search_string_url += "&type=" + search_type
+try:
+    response = urllib.request.urlopen(search_string_url).read().decode("utf-8")
+    json_data = json.loads(response)
+    data = Movie(json_data)
+    data.to_string()
 
-print(search_string_url)
+except:
+    print("Error searching for " + search_query)
+    pass
