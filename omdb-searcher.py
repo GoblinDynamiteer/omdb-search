@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, urllib.request, sys, re
+import json, urllib.request, sys, re, argparse
 
 # Check if string is an IMDB-id
 def is_imdb(string):
@@ -8,13 +8,17 @@ def is_imdb(string):
 
 #Check that string is valid type
 def valid_type(string):
+    if string == None:
+        return False
     re_type = re.compile("(^movie$|^series$|^episode$)")
     return True if re_type.search(string) else False
 
 #Check that string is valid year
 def valid_year(string):
+    if string == None:
+        return False
     re_year = re.compile("^[1-2]\d{3}$")
-    return True if re_year.search(string) else False
+    return True if (re_year.search(string) or string != None) else False
 
 class Movie:
     def __init__(self, json_data):
@@ -71,7 +75,7 @@ class Show:
     def __find_episodes(self):
         self.seasons = []
         for i in range(0, int(self.season_count)):
-            url = site + "?apikey=" + api_key + "&i=" + self.imdb_id + \
+            url = site + "?apikey=" + args.api_key + "&i=" + self.imdb_id + \
                 "&season=" + str(i+1)
             try:
                 response = urllib.request.urlopen(url).read().decode("utf-8")
@@ -106,43 +110,39 @@ class Episode:
 
 site = "http://www.omdbapi.com"
 
-if len(sys.argv) < 3:
-    print("Missing arguments: search_query and/or api_key")
-    sys.exit()
-else:
-    api_key = sys.argv[1]
-    search_query = sys.argv[2].replace(" ", "+")       #Title or IMDB-id
-
-# Valid types: movie, series, episode
-search_year = sys.argv[3] if len(sys.argv) > 3 else "none"
-search_type = sys.argv[4] if len(sys.argv) > 4 else "none"
+parser = argparse.ArgumentParser(description='OMDb search')
+parser.add_argument('-api', dest='api_key', type=str, help='API key (Required)')
+parser.add_argument('query', type=str, help='Search query')
+parser.add_argument('-year', dest='search_year', help='Year')
+parser.add_argument('-type', dest='search_type', help='Type: movie, series, episode')
+parser.add_argument('-output', dest='output', \
+    help='Output: imdb, title, year, genre, episode_list') # -o works
+args = parser.parse_args()
 
 # Build search url
-search_string_url = site + "?apikey=" + api_key
-if is_imdb(search_query):
-    search_string_url += "&i=" + search_query + "&plot=full"
+search_string_url = site + "?apikey=" + args.api_key
+if is_imdb(args.query):
+    search_string_url += "&i=" + args.query + "&plot=full"
 else:
-    search_string_url += "&t=" + search_query + "&plot=full"
-    if valid_year(search_year):
-        search_string_url += "&y=" + search_year
-    if valid_type(search_type):
-        search_string_url += "&type=" + search_type
-
+    search_string_url += "&t=" + args.query + "&plot=full"
+    if valid_year(args.search_year):
+        search_string_url += "&y=" + args.search_year
+    if valid_type(args.search_type):
+        search_string_url += "&type=" + args.search_type
 try:
     response = urllib.request.urlopen(search_string_url).read().decode("utf-8")
     json_data = json.loads(response)
+    if json_data["Type"] == "series":
+        data = Show(json_data)
+
+    if json_data["Type"] == "movie":
+        data = Movie(json_data)
 
 except:
-    print("Error searching for " + search_query)
+    print("Error searching for " + args.query)
     sys.exit()
 
-if json_data["Type"] == "series":
-    data = Show(json_data)
-
-if json_data["Type"] == "movie":
-    data = Movie(json_data)
-
 data.to_string()
-if hasattr(data, 'list_episodes') and False:
+if hasattr(data, 'list_episodes') and args.output == "episode_list":
     print("\nEpisodes (" + str(data.episode_count) + ")")
     data.list_episodes()
