@@ -116,7 +116,7 @@ parser.add_argument('query', type=str, help='Search query')
 parser.add_argument('-year', dest='search_year', help='Year')
 parser.add_argument('-type', dest='search_type', help='Type: movie, series, episode')
 parser.add_argument('-output', dest='output', \
-    help='Output: imdb, title, year, genre, episode_list') # -o works
+    help='Output: full, imdb, title, year, genre, episode_list, episode_count') # -o works
 args = parser.parse_args()
 
 # Build search url
@@ -124,7 +124,7 @@ search_string_url = site + "?apikey=" + args.api_key
 if is_imdb(args.query):
     search_string_url += "&i=" + args.query + "&plot=full"
 else:
-    search_string_url += "&t=" + args.query + "&plot=full"
+    search_string_url += "&t=" + re.sub('\s+', '+', args.query) + "&plot=full"
     if valid_year(args.search_year):
         search_string_url += "&y=" + args.search_year
     if valid_type(args.search_type):
@@ -140,9 +140,32 @@ try:
 
 except:
     print("Error searching for " + args.query)
+    print("String Generated: " + search_string_url)
     sys.exit()
 
-data.to_string()
-if hasattr(data, 'list_episodes') and args.output == "episode_list":
-    print("\nEpisodes (" + str(data.episode_count) + ")")
-    data.list_episodes()
+# Output
+if args.output == "full":
+    data.to_string()
+    if hasattr(data, 'list_episodes'):
+        print("\nEpisodes (" + str(data.episode_count) + ")")
+        data.list_episodes()
+elif args.output == "episode_list":
+    if hasattr(data, 'list_episodes'):
+        data.list_episodes()
+    else:
+        print("No episodes available for " + data.title)
+elif args.output == "episode_count":
+    if hasattr(data, 'episode_count'):
+        print(data.episode_count)
+    else:
+        print("No episodes available for " + data.title)
+elif args.output == "imdb":
+    print(data.imdb_id)
+elif args.output == "title":
+    print(data.title)
+elif args.output == "genre":
+    print(data.genre)
+elif args.output == "year":
+    print(data.year)
+else: # No output argument given
+    data.to_string()
