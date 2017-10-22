@@ -1,6 +1,8 @@
 # omdb-search
 Python script that uses OMDb API to find information about movies, episodes or tv-shows. Requires API-key
 
+Arguments using argparse lib    
+![search_movie](https://raw.githubusercontent.com/GoblinDynamiteer/omdb-search/master/img/args.PNG)
 
 Movie result  
 ![search_movie](https://raw.githubusercontent.com/GoblinDynamiteer/omdb-search/master/img/query_movie_jungle.PNG)
