@@ -8,3 +8,5 @@ Movie result
 TV show result  
 ![search_tv](https://raw.githubusercontent.com/GoblinDynamiteer/omdb-search/master/img/query_tv_breakingbad.PNG)
 
+Episode list  
+![search_episodes](https://raw.githubusercontent.com/GoblinDynamiteer/omdb-search/master/img/query_tv_listeps.PNG)
