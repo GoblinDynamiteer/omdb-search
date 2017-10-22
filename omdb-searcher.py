@@ -25,8 +25,31 @@ class Movie:
         self.genre = json_data["Genre"]
         self.actors = json_data["Actors"]
         self.runtime = json_data["Runtime"]
+        self.country = json_data["Country"]
     def to_string(self):
-        print(self.title + " (" + self.year +")")
+        print("Movie: " + self.title + " (" + self.year +")")
+        print(self.country)
+        print(self.imdb_id)
+        print(self.genre)
+        print("Runtime: " + self.runtime)
+        print("IMDb rating: " + self.imdb_rating)
+        print("Actors: " + self.actors)
+
+class Show:
+    def __init__(self, json_data):
+        self.title = json_data["Title"]
+        self.year = re.sub('[^\x00-\x7f]','-', json_data["Year"])
+        self.imdb_id = json_data["imdbID"]
+        self.imdb_rating = json_data["Ratings"][0]["Value"]
+        self.genre = json_data["Genre"]
+        self.actors = json_data["Actors"]
+        self.runtime = json_data["Runtime"]
+        self.seasons = json_data["totalSeasons"]
+        self.country = json_data["Country"]
+    def to_string(self):
+        print("Show: " + self.title + " (" + self.year +")")
+        print(self.country)
+        print(self.seasons + " seasons")
         print(self.imdb_id)
         print(self.genre)
         print("Runtime: " + self.runtime)
@@ -56,12 +79,19 @@ else:
         search_string_url += "&y=" + search_year
     if valid_type(search_type):
         search_string_url += "&type=" + search_type
+
 try:
     response = urllib.request.urlopen(search_string_url).read().decode("utf-8")
     json_data = json.loads(response)
-    data = Movie(json_data)
-    data.to_string()
 
 except:
     print("Error searching for " + search_query)
-    pass
+    sys.exit()
+
+if json_data["Type"] == "series":
+    data = Show(json_data)
+
+if json_data["Type"] == "movie":
+    data = Movie(json_data)
+
+data.to_string()
