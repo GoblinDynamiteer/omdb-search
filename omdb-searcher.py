@@ -49,11 +49,11 @@ class Show:
         self.actors = json_data["Actors"]
         self.runtime = json_data["Runtime"]
         self.season_count = json_data["totalSeasons"]
-        self.episode_count = 0
+        self.episode_count = None
         self.country = json_data["Country"]
         self.seasons = None
 
-        self.__find_episodes()
+        #self.__find_episodes()
 
     def to_string(self):
         print("Show: " + self.title + " (" + self.year +")")
@@ -72,8 +72,15 @@ class Show:
             for episode in season.episodes:
                 episode.to_string()
 
+    def get_episode_count(self):
+        if self.episode_count == None:
+            self.__find_episodes()
+        return self.episode_count
+
+
     def __find_episodes(self):
         self.seasons = []
+        self.episode_count = 0
         for i in range(0, int(self.season_count)):
             url = site + "?apikey=" + args.api_key + "&i=" + self.imdb_id + \
                 "&season=" + str(i+1)
@@ -116,7 +123,7 @@ parser.add_argument('query', type=str, help='Search query')
 parser.add_argument('-year', dest='search_year', help='Year')
 parser.add_argument('-type', dest='search_type', help='Type: movie, series, episode')
 parser.add_argument('-output', dest='output', \
-    help='Output: full, imdb, title, year, genre, episode_list, episode_count') # -o works
+    help='Output: full, imdb, title, year, runtime, actors, genre, episode_list, episode_count') # -o works
 args = parser.parse_args()
 
 # Build search url
@@ -156,7 +163,7 @@ elif args.output == "episode_list":
         print("No episodes available for " + data.title)
 elif args.output == "episode_count":
     if hasattr(data, 'episode_count'):
-        print(data.episode_count)
+        print(data.get_episode_count())
     else:
         print("No episodes available for " + data.title)
 elif args.output == "imdb":
@@ -167,5 +174,9 @@ elif args.output == "genre":
     print(data.genre)
 elif args.output == "year":
     print(data.year)
+elif args.output == "actors":
+    print(data.actors)
+elif args.output == "runtime":
+    print(data.runtime)
 else: # No output argument given
     data.to_string()
