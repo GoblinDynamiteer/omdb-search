@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, urllib.request, sys, re, argparse
+import json, urllib.request, sys, re
 
 site = "http://www.omdbapi.com"
 
