@@ -5,7 +5,15 @@ site = "http://www.omdbapi.com"
 
 class omdb_search:
     def __init__(self, search_string, search_type, search_year, api_key):
-        self.api_key = api_key
+        self.api_key = self._load_api_key()
+        if self.api_key is None:
+            if not api_key.isempty():
+                print("Using passed API-key")
+                self.api_key = api_key
+            else:
+                print("Quitting")
+                quit();
+
         self.json_data = ""
         self.search_type = ""
         self.search_year = ""
@@ -41,7 +49,17 @@ class omdb_search:
         except:
             self.json_data = None
 
-    def get_json(self):
+    def _load_api_key(self, passed_key = None):
+        try:
+            f = open("omdb_api.txt", "r")
+            key = f.readline().strip('\n')
+            f.close()
+            return key
+        except:
+            print("Could not load OMDb API-key from file")
+            return None
+
+    def data(self):
         return self.json_data
 
     def get_type(self):
