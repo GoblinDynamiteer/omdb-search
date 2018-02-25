@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-import json, urllib.request, sys, re
+import json, urllib.request, sys, re, os
 
 site = "http://www.omdbapi.com"
 
 class omdb_search:
-    def __init__(self, search_string, search_type, search_year, api_key):
+    def __init__(self, search_string, search_type, search_year, api_key = None):
         self.api_key = self._load_api_key()
         if self.api_key is None:
-            if not api_key.isempty():
+            if api_key is not None:
                 print("Using passed API-key")
                 self.api_key = api_key
             else:
@@ -49,9 +49,12 @@ class omdb_search:
         except:
             self.json_data = None
 
-    def _load_api_key(self, passed_key = None):
+    # Load API-key from text-file in same directory as script file
+    def _load_api_key(self):
+        script_path = os.path.dirname(os.path.realpath(__file__))
+        api_txt = os.path.join(script_path, "omdb_api.txt")
         try:
-            f = open("omdb_api.txt", "r")
+            f = open(api_txt, "r")
             key = f.readline().strip('\n')
             f.close()
             return key
