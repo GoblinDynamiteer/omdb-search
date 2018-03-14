@@ -98,7 +98,7 @@ class omdb_search:
 class omdb_movie_data:
     def __init__(self, omdb):
         self.omdb = omdb
-        self.json = self.omdb.get_json()
+        self.json = self.omdb.data()
         self.title = self.json["Title"]
         self.year = self.json["Year"]
         self.imdb_id = self.json["imdbID"]

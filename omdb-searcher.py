@@ -15,7 +15,7 @@ args = parser.parse_args()
 
 search = omdb.omdb_search(search_string=args.query, search_type=args.search_type, api_key=args.api_key, search_year=args.search_year)
 
-if search.get_json() == None:
+if search.data() == None:
     print("Error searching for " + args.query)
     print("String Generated: " + search.get_url())
     sys.exit()
