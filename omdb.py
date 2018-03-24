@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import json, urllib, sys, re, os
+import json, sys, re, os, urllib.parse, urllib.request
 
 site = "http://www.omdbapi.com"
 
@@ -35,8 +35,7 @@ class omdb_search:
 
     def _search(self):
         try:
-            response = urllib.request.urlopen(self.search_string_url, timeout = 4) \
-                .read().decode("utf-8")
+            response = urllib.request.urlopen(self.search_string_url, timeout=4).read().decode("utf-8")
             self.json_data = json.loads(response)
         except:
             self.json_data = None
