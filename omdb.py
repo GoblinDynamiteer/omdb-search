@@ -1,45 +1,37 @@
 # -*- coding: utf-8 -*-
-import json, urllib.request, sys, re, os
+import json, urllib, sys, re, os
 
 site = "http://www.omdbapi.com"
 
 class omdb_search:
     def __init__(self, search_string, search_type, search_year, api_key = None):
-        self.api_key = self._load_api_key()
-        if self.api_key is None:
-            if api_key is not None:
-                print("Using passed API-key")
-                self.api_key = api_key
-            else:
-                print("Quitting")
-                quit();
-
+        _apk = self._load_api_key()
+        self.url_args = {}
+        if not _apk and api_key:
+            print("Using passed API-key")
+            _apk = api_key
+        elif not _apk:
+            print("no valid API-key found or passed, quitting")
+            quit();
+        self.url_args['apikey'] = _apk
         self.json_data = ""
-        self.search_type = ""
-        self.search_year = ""
-        self.search_string_url = site + "?apikey=" + self.api_key
-        self.imdb = ""
-        self.error = -1
         if self._is_imdb(search_string):
-            self.imdb = search_string
-            self.search_string_url += "&i=" + self.imdb
+            self.url_args['i'] = search_string
         else:
-            self.imdb = ""
-            self.search_string_url += "&t=" + re.sub('\s+', '+', search_string)
+            self.url_args['t'] = search_string
             if self._valid_year(search_year):
-                self.search_string_url += "&y=" + search_year
-                self.search_year = search_year
+                self.url_args['y'] = search_year
             if self._valid_type(search_type):
-                self.search_string_url += "&type=" + search_type
-                self.search_type = search_type
-        self.search_string_url += "&plot=full"
+                self.url_args['type'] = search_type
+        self.url_args['plot'] = "full"
+        self.search_string_url = site + "?" + urllib.parse.urlencode(self.url_args)
         self._search();
 
     def get_url(self):
         return self.search_string_url
 
     def get_api(self):
-        return self.api_key
+        return self.url_args['apikey']
 
     def _search(self):
         try:
@@ -72,9 +64,9 @@ class omdb_search:
             if self.json_data["Type"] == "movie":
                 return "movie"
             else:
-                return self.error
+                return None
         except:
-            return self.error
+            return None
 
     # Check if string is an IMDB-id
     def _is_imdb(self, string):
@@ -122,7 +114,7 @@ class omdb_movie_data:
 class omdb_tv_data:
     def __init__(self, omdb):
         self.omdb = omdb
-        self.json = self.omdb.get_json()
+        self.json = self.omdb.data()
         self.title = self.json["Title"]
         self.year = re.sub('[^\x00-\x7f]','-', self.json["Year"])
         self.imdb_id = self.json["imdbID"]
