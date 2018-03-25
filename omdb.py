@@ -4,7 +4,8 @@ import json, sys, re, os, urllib.parse, urllib.request
 site = "http://www.omdbapi.com"
 
 class omdb_search:
-    def __init__(self, search_string, search_type, search_year, api_key = None,
+    def __init__(self, query,
+        type = None, year = None, api_key = None,
         season = None, episode = None):
         _apk = self._load_api_key()
         self.url_args = {}
@@ -16,14 +17,14 @@ class omdb_search:
             quit();
         self.url_args['apikey'] = _apk
         self.json_data = ""
-        if self._is_imdb(search_string):
-            self.url_args['i'] = search_string
+        if self._is_imdb(query):
+            self.url_args['i'] = query
         else:
-            self.url_args['t'] = search_string
-            if self._valid_year(search_year):
-                self.url_args['y'] = search_year
-            if self._valid_type(search_type):
-                self.url_args['type'] = search_type
+            self.url_args['t'] = query
+            if self._valid_year(year):
+                self.url_args['y'] = year
+            if self._valid_type(type):
+                self.url_args['type'] = type
         self.url_args['plot'] = "full"
         if season:
             self.url_args['Season'] = season

@@ -15,9 +15,9 @@ parser.add_argument('-type', dest='search_type',
     help='get_type: movie, series, episode')
 args = parser.parse_args()
 
-search = omdb.omdb_search(search_string=args.query,
-    search_type=args.search_type, api_key=args.api_key,
-    search_year=args.search_year, episode=args.episode,
+search = omdb.omdb_search(args.query,
+    type=args.search_type, api_key=args.api_key,
+    year=args.search_year, episode=args.episode,
     season=args.season)
 
 if search.data() == None:
